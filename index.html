@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: "Helvetica", Arial, sans-serif;
+      background-color: #0d1117;
+      color: #c9d1d9;
+    }
+    
+    li {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    
+    @media (max-width: 767px) {
+      li {
+        font-size: 14px;
+      }
+    }
+
+    .delete-btn {
+      display: inline-block;
+      margin-left: 20px;
+      cursor: pointer;
+    }
+
+    #diary-form {
+      margin-top: 20px;
+    }
+  </style>
+  <title>Diary</title>
+</head>
+<body>
+  <ul id="diary-entries">
+    <!-- Diary entries will be inserted here dynamically -->
+  </ul>
+
+  <div id="floating-input">
+    <form id="diary-form" action="/diary" method="post">
+      <input type="text" name="entry" placeholder="Write a new diary entry">
+      <button type="submit">+</button>
+    </form>
+  </div>
+
+  <script>
+    // Function to update the diary entries
+    function updateDiaryEntries() {
+      fetch('/diary-data')
+        .then(response => response.json())
+        .then(data => {
+          const diaryEntries = data;
+          const diaryList = document.getElementById('diary-entries');
+
+          // Clear the existing entries
+          diaryList.innerHTML = '';
+
+          // Add the updated entries
+          diaryEntries.forEach((entry) => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+              ${detectURLs(entry)}
+              <span class="delete-btn" onclick="deleteEntry('${entry}')">x</span>
+            `;
+            diaryList.appendChild(listItem);
+          });
+        })
+        .catch(err => console.error(err));
+    }
+
+    // Function to delete an entry
+    function deleteEntry(entry) {
+      fetch('/diary/' + encodeURIComponent(entry), { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Successfully deleted, update the entries
+            updateDiaryEntries();
+          } else {
+            console.error('Failed to delete entry:', entry);
+          }
+        })
+        .catch(err => console.error(err));
+    }
+
+    // Function to detect URLs in text and convert them to links
+    function detectURLs(text) {
+      const urlPattern = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+    }
+
+    // Initial update of diary entries
+    updateDiaryEntries();
+
+    // Handle form submission
+    document.getElementById('diary-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const newEntry = document.querySelector('input[name="entry"]').value;
+      if (newEntry) {
+        fetch('/diary', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `entry=${encodeURIComponent(newEntry)}`,
+        })
+          .then(() => {
+            document.querySelector('input[name="entry"]').value = '';
+            updateDiaryEntries();
+          })
+          .catch(err => console.error(err));
+      }
+    });
+  </script>
+</body>
+</html>
