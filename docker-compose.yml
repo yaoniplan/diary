@@ -8,4 +8,4 @@ services:
     ports:
       - 2004:2004
     volumes:
-      - ./mydiary.json:/app/mydiary.json
+      - ./mydiary.json:/var/diary/mydiary.json
