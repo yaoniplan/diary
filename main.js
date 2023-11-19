@@ -46,9 +46,9 @@ app.post('/diary', (req, res) => {
 });
 
 app.post('/diary/:entry', (req, res) => {
-  const entry = decodeURIComponent(req.params.entry);
+  const entry = req.params.entry;
   const diaryData = readDataFromFile();
-  const index = diaryData.indexOf(entry);
+  const index = diaryData.findIndex(item => item === entry);
   if (index !== -1) {
     diaryData.splice(index, 1);
     writeDataToFile(diaryData);
