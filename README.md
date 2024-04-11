@@ -5,9 +5,16 @@ Developed a simple diary application example that allows users to write and dele
 - [ ] Use CSS to beautify it
 - [ ] Fix deletion bug about single or double quotes
 
-### Use curl to send a diary entry
+### Use cURL
+Show me the method (e.g. GET, POST, PUT, PATCH, DELETE), Headers, and Request Body (e.g. JSON, Form, File):
 ```
+# Send a diary entry
+# iOS Shortcuts: Method: POST; Headers: None;
+# Request Body: Form (Key: entry; Value: yourNewDiaryEntry)
 curl --request POST --data "entry=yourNewDiaryEntry" http://192.168.10.100:2004/diary
+
+# Display diary entry
+curl --silent http://192.168.10.100:2004/diary-data | jq .
 ```
 
 ### Use Docker to modify a diary entry
